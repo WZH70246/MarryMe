@@ -329,7 +329,7 @@
 
     <section class="card hero">
       <div>
-        <h1 class="title">婚礼礼金记录软件<span class="version-badge">v4.3</span></h1>
+        <h1 class="title">婚礼礼金记录软件<span class="version-badge">v5.0</span></h1>
         <p class="sub">记录姓名与金额，按金额自动动态排行，支持实时显示与 Excel / Markdown 生成</p>
       </div>
       <div class="actions">
@@ -403,15 +403,16 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "marry_gift_records_v4_3";
-    const META_KEY = "marry_gift_meta_v4_3";
-    const BG_MD_KEY = "marry_gift_bg_md_v4_3";
-    const BG_XLS_KEY = "marry_gift_bg_xls_v4_3";
-    const BG_TS_KEY = "marry_gift_bg_ts_v4_3";
-    const BG_MD_NAME_KEY = "marry_gift_bg_md_name_v4_3";
-    const BG_XLS_NAME_KEY = "marry_gift_bg_xls_name_v4_3";
-    const BG_MD_SIZE_KEY = "marry_gift_bg_md_size_v4_3";
-    const BG_XLS_SIZE_KEY = "marry_gift_bg_xls_size_v4_3";
+    const STORAGE_KEY = "marry_gift_records_v5_0";
+    const META_KEY = "marry_gift_meta_v5_0";
+    const BG_MD_KEY = "marry_gift_bg_md_v5_0";
+    const BG_XLS_KEY = "marry_gift_bg_xls_v5_0";
+    const BG_TS_KEY = "marry_gift_bg_ts_v5_0";
+    const BG_MD_NAME_KEY = "marry_gift_bg_md_name_v5_0";
+    const BG_XLS_NAME_KEY = "marry_gift_bg_xls_name_v5_0";
+    const BG_MD_SIZE_KEY = "marry_gift_bg_md_size_v5_0";
+    const BG_XLS_SIZE_KEY = "marry_gift_bg_xls_size_v5_0";
+    const CLEAR_DATA_PASSWORD = "6666";
     const nameInput = document.getElementById("nameInput");
     const amountInput = document.getElementById("amountInput");
     const groomInput = document.getElementById("groomInput");
@@ -1011,6 +1012,12 @@
     clearBtn.addEventListener("click", () => {
       if (!records.length) return;
       if (!confirm("确认清空所有礼金记录？该操作不可撤销。")) return;
+      const pwd = prompt(`请输入清空密码（密码：${CLEAR_DATA_PASSWORD}）：`);
+      if (pwd === null) return;
+      if (pwd !== CLEAR_DATA_PASSWORD) {
+        alert("密码错误，已取消清空。");
+        return;
+      }
       records = [];
       editingOriginalName = "";
       saveRecords();
