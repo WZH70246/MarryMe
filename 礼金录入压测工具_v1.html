@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>礼金录入压测工具</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f4f7ff;
+      color: #1f2a44;
+      padding: 24px;
+    }
+    .card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #d9e2f4;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 10px 26px rgba(25, 53, 110, 0.1);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+    p {
+      margin: 8px 0;
+      color: #4c5b78;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    input, button {
+      border-radius: 10px;
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+    input {
+      border: 1px solid #cfdaf2;
+      width: 180px;
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+      color: #fff;
+      background: #2e6df6;
+    }
+    button.secondary { background: #5e6a84; }
+    .log {
+      margin-top: 14px;
+      border: 1px solid #dde6f7;
+      border-radius: 10px;
+      min-height: 120px;
+      padding: 10px;
+      background: #f9fbff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      color: #234;
+    }
+  </style>
+</head>
+<body>
+  <section class="card">
+    <h1>礼金录入压测工具（v4.1）</h1>
+    <p>作用：一次性写入大量测试数据到 <code>婚礼礼金记录软件_v4.1.html</code> 的本地存储。</p>
+    <p>默认写入 1000 人，你可改数量后再执行。</p>
+
+    <div class="row">
+      <input id="countInput" type="number" min="1" max="30000" value="1000" />
+      <button id="seedBtn">一键写入测试数据</button>
+      <button id="clearBtn" class="secondary">清空测试数据</button>
+      <button id="openBtn" class="secondary">打开 v4.1 主程序</button>
+    </div>
+
+    <div class="log" id="log"></div>
+  </section>
+
+  <script>
+    const STORAGE_KEY = "marry_gift_records_v4_1";
+    const logEl = document.getElementById("log");
+    const countInput = document.getElementById("countInput");
+    const seedBtn = document.getElementById("seedBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const openBtn = document.getElementById("openBtn");
+
+    function log(msg) {
+      const now = new Date().toLocaleTimeString("zh-CN");
+      logEl.textContent += `[${now}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function buildRecords(n) {
+      const base = Date.now();
+      const arr = [];
+      for (let i = 1; i <= n; i += 1) {
+        arr.push({
+          name: `测试宾客${String(i).padStart(4, "0")}`,
+          amount: Number((Math.random() * 2000 + 100).toFixed(2)),
+          updatedAt: base + i
+        });
+      }
+      return arr;
+    }
+
+    seedBtn.addEventListener("click", () => {
+      const n = Number(countInput.value);
+      if (!Number.isInteger(n) || n <= 0) {
+        alert("请输入合法人数（正整数）");
+        return;
+      }
+
+      const t0 = performance.now();
+      const records = buildRecords(n);
+      const json = JSON.stringify(records);
+      localStorage.setItem(STORAGE_KEY, json);
+      const t1 = performance.now();
+
+      const kb = (json.length / 1024).toFixed(2);
+      log(`已写入 ${n} 人测试数据。`);
+      log(`写入耗时: ${(t1 - t0).toFixed(2)} ms`);
+      log(`数据体积: ${kb} KB`);
+      log("请打开 v4.1 主程序查看渲染流畅度。");
+    });
+
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      log("已清空 v4.1 的礼金记录测试数据。");
+    });
+
+    openBtn.addEventListener("click", () => {
+      window.open("./婚礼礼金记录软件_v4.1.html", "_blank");
+    });
+
+    log("准备就绪。");
+  </script>
+</body>
+</html>
