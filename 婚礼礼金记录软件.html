@@ -62,6 +62,16 @@
       font-weight: 650;
       letter-spacing: 0.4px;
     }
+    .version-badge {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #fff4d1;
+      background: linear-gradient(135deg, #c7932f, #a7771f);
+      vertical-align: middle;
+    }
 
     .sub {
       margin: 6px 0 0;
@@ -319,7 +329,7 @@
 
     <section class="card hero">
       <div>
-        <h1 class="title">婚礼礼金记录软件</h1>
+        <h1 class="title">婚礼礼金记录软件<span class="version-badge">v4.3</span></h1>
         <p class="sub">记录姓名与金额，按金额自动动态排行，支持实时显示与 Excel / Markdown 生成</p>
       </div>
       <div class="actions">
@@ -393,15 +403,15 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "marry_gift_records_v4_1";
-    const META_KEY = "marry_gift_meta_v4_1";
-    const BG_MD_KEY = "marry_gift_bg_md_v4_1";
-    const BG_XLS_KEY = "marry_gift_bg_xls_v4_1";
-    const BG_TS_KEY = "marry_gift_bg_ts_v4_1";
-    const BG_MD_NAME_KEY = "marry_gift_bg_md_name_v4_1";
-    const BG_XLS_NAME_KEY = "marry_gift_bg_xls_name_v4_1";
-    const BG_MD_SIZE_KEY = "marry_gift_bg_md_size_v4_1";
-    const BG_XLS_SIZE_KEY = "marry_gift_bg_xls_size_v4_1";
+    const STORAGE_KEY = "marry_gift_records_v4_3";
+    const META_KEY = "marry_gift_meta_v4_3";
+    const BG_MD_KEY = "marry_gift_bg_md_v4_3";
+    const BG_XLS_KEY = "marry_gift_bg_xls_v4_3";
+    const BG_TS_KEY = "marry_gift_bg_ts_v4_3";
+    const BG_MD_NAME_KEY = "marry_gift_bg_md_name_v4_3";
+    const BG_XLS_NAME_KEY = "marry_gift_bg_xls_name_v4_3";
+    const BG_MD_SIZE_KEY = "marry_gift_bg_md_size_v4_3";
+    const BG_XLS_SIZE_KEY = "marry_gift_bg_xls_size_v4_3";
     const nameInput = document.getElementById("nameInput");
     const amountInput = document.getElementById("amountInput");
     const groomInput = document.getElementById("groomInput");
@@ -751,17 +761,23 @@
       ctx.closePath();
     }
 
-    function drawWatermark(ctx, width, height, text) {
+    function drawWatermark(ctx, width, height, text, opts = {}) {
       ctx.save();
       ctx.translate(width / 2, height / 2);
-      ctx.rotate(-Math.PI / 6);
-      ctx.font = "bold 34px 'Microsoft YaHei'";
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
+      ctx.rotate(opts.rotate || -Math.PI / 6);
+      const fontSize = opts.fontSize || 32;
+      ctx.font = `bold ${fontSize}px 'Microsoft YaHei'`;
       ctx.textAlign = "center";
-      const stepX = 480;
-      const stepY = 170;
+      ctx.lineWidth = opts.lineWidth || 0.8;
+      const stepX = opts.stepX || 760;
+      const stepY = opts.stepY || 320;
+      const strokeColor = opts.strokeColor || "rgba(70, 8, 16, 0.14)";
+      const fillColor = opts.fillColor || "rgba(255, 234, 170, 0.14)";
       for (let y = -height; y <= height; y += stepY) {
         for (let x = -width; x <= width; x += stepX) {
+          ctx.strokeStyle = strokeColor;
+          ctx.fillStyle = fillColor;
+          ctx.strokeText(text, x, y);
           ctx.fillText(text, x, y);
         }
       }
@@ -818,7 +834,7 @@
       const panelY = 260;
       const panelW = width - 110;
       const panelH = height - panelY - 50;
-      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fillStyle = "rgba(255,255,255,0.99)";
       ctx.strokeStyle = "rgba(255, 242, 200, 0.85)";
       ctx.lineWidth = 2;
       drawRoundedRect(ctx, panelX, panelY, panelW, panelH, 20);
@@ -839,11 +855,32 @@
       ctx.stroke();
 
       const list = sorted.length ? sorted : [{ name: "暂无记录", amount: 0 }];
+
+      // Draw row backgrounds first.
       list.forEach((item, idx) => {
         const y = panelY + 110 + idx * 52;
         ctx.fillStyle = idx % 2 === 0 ? "#fff6f6" : "#fff";
         ctx.fillRect(panelX + 20, y - 32, panelW - 40, 42);
+      });
 
+      // Then overlay watermark inside panel so it stays visible for large row counts.
+      const dynamicStepY = Math.max(220, Math.min(420, Math.floor(panelH / 4)));
+      ctx.save();
+      drawRoundedRect(ctx, panelX, panelY, panelW, panelH, 20);
+      ctx.clip();
+      drawWatermark(ctx, width, height, `${groom}&${bride}  ${location}  ${timeText}`, {
+        fontSize: 30,
+        stepX: 780,
+        stepY: dynamicStepY,
+        lineWidth: 0.8,
+        strokeColor: "rgba(70, 70, 70, 0.11)",
+        fillColor: "rgba(120, 120, 120, 0.11)"
+      });
+      ctx.restore();
+
+      // Finally draw row texts on top for readability.
+      list.forEach((item, idx) => {
+        const y = panelY + 110 + idx * 52;
         ctx.fillStyle = "#8d1e2a";
         ctx.font = "24px 'Microsoft YaHei'";
         ctx.fillText(String(idx + 1), panelX + 45, y);

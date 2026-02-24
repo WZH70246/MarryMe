@@ -68,22 +68,26 @@
 </head>
 <body>
   <section class="card">
-    <h1>礼金录入压测工具（v4.1）</h1>
-    <p>作用：一次性写入大量测试数据到 <code>婚礼礼金记录软件_v4.1.html</code> 的本地存储。</p>
+    <h1>礼金录入压测工具</h1>
+    <p>作用：一次性写入大量测试数据到 <code>婚礼礼金记录软件.html</code> 的本地存储。</p>
     <p>默认写入 1000 人，你可改数量后再执行。</p>
 
     <div class="row">
       <input id="countInput" type="number" min="1" max="30000" value="1000" />
       <button id="seedBtn">一键写入测试数据</button>
       <button id="clearBtn" class="secondary">清空测试数据</button>
-      <button id="openBtn" class="secondary">打开 v4.1 主程序</button>
+      <button id="openBtn" class="secondary">打开主程序</button>
     </div>
 
     <div class="log" id="log"></div>
   </section>
 
   <script>
-    const STORAGE_KEY = "marry_gift_records_v4_1";
+    const TARGET_KEYS = [
+      "marry_gift_records_v4_3",
+      "marry_gift_records_v4_2",
+      "marry_gift_records_v4_1"
+    ];
     const logEl = document.getElementById("log");
     const countInput = document.getElementById("countInput");
     const seedBtn = document.getElementById("seedBtn");
@@ -119,23 +123,24 @@
       const t0 = performance.now();
       const records = buildRecords(n);
       const json = JSON.stringify(records);
-      localStorage.setItem(STORAGE_KEY, json);
+      TARGET_KEYS.forEach((key) => localStorage.setItem(key, json));
       const t1 = performance.now();
 
       const kb = (json.length / 1024).toFixed(2);
       log(`已写入 ${n} 人测试数据。`);
+      log(`写入键: ${TARGET_KEYS.join(", ")}`);
       log(`写入耗时: ${(t1 - t0).toFixed(2)} ms`);
       log(`数据体积: ${kb} KB`);
-      log("请打开 v4.1 主程序查看渲染流畅度。");
+      log("请打开主程序查看渲染流畅度。");
     });
 
     clearBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEY);
-      log("已清空 v4.1 的礼金记录测试数据。");
+      TARGET_KEYS.forEach((key) => localStorage.removeItem(key));
+      log("已清空礼金记录测试数据。");
     });
 
     openBtn.addEventListener("click", () => {
-      window.open("./婚礼礼金记录软件_v4.1.html", "_blank");
+      window.open("./婚礼礼金记录软件.html", "_blank");
     });
 
     log("准备就绪。");
