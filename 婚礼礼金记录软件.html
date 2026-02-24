@@ -322,7 +322,7 @@
         </div>
         <div class="form-row">
           <label for="timeInput">时间</label>
-          <input id="timeInput" type="datetime-local" />
+          <input id="timeInput" type="datetime-local" step="1" />
         </div>
       </div>
     </section>
@@ -479,7 +479,16 @@
     function defaultDateTimeLocalValue() {
       const d = new Date();
       const p = (n) => String(n).padStart(2, "0");
-      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+
+    function startRealtimeClock() {
+      const tick = () => {
+        timeInput.value = defaultDateTimeLocalValue();
+        saveMeta();
+      };
+      tick();
+      setInterval(tick, 1000);
     }
 
     function loadMeta() {
@@ -1014,6 +1023,7 @@
     });
 
     loadMeta();
+    startRealtimeClock();
     render();
   </script>
 </body>
