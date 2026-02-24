@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>婚礼礼金记录软件</title>
+  <style>
+    :root {
+      --bg-1: #f5f7fb;
+      --bg-2: #e9eef8;
+      --panel: #ffffffcc;
+      --text: #18233a;
+      --sub: #5a6780;
+      --line: #dbe3f0;
+      --brand: #2e6df6;
+      --brand-2: #1f55cd;
+      --ok: #0f9d58;
+      --danger: #d93025;
+      --shadow: 0 10px 30px rgba(33, 60, 112, 0.12);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at -10% -20%, #ffffff, transparent 60%),
+                  radial-gradient(900px 600px at 110% -10%, #d7e4ff, transparent 50%),
+                  linear-gradient(165deg, var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 650;
+      letter-spacing: 0.4px;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); opacity: 0.9; }
+
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-2); }
+    .btn-light { background: #eef3ff; color: #21407f; }
+    .btn-danger { background: #fff2f2; color: var(--danger); }
+    .btn-gold { background: #c7932f; color: #fff; }
+    .btn-gold:hover { background: #a7771f; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--sub);
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      background: #fff;
+    }
+    input:focus {
+      border-color: #9dbaf9;
+      box-shadow: 0 0 0 3px rgba(46, 109, 246, 0.15);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .stat .k {
+      font-size: 12px;
+      color: var(--sub);
+    }
+    .stat .v {
+      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #fff;
+    }
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      color: #33558e;
+      background: #eef3ff;
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    tbody td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #edf1f9;
+      font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .rank {
+      font-weight: 650;
+      color: #1e3f78;
+    }
+    .money {
+      font-weight: 650;
+      color: var(--ok);
+    }
+    .op {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+    .credit {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+    .credit .author {
+      color: #1f3257;
+      font-weight: 600;
+    }
+    .credit a {
+      color: #1f55cd;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .credit a:hover {
+      text-decoration: underline;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #35507f;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #eef5ff;
+      border: 1px solid #d4e3ff;
+    }
+    .case {
+      position: relative;
+      overflow: hidden;
+      padding: 18px;
+      border: 2px solid #f19a9a;
+      background: linear-gradient(135deg, #b80f1f, #d7192d 45%, #9f0b1a);
+      box-shadow: 0 14px 30px rgba(155, 10, 28, 0.24);
+    }
+    .case::before {
+      content: "囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍 囍";
+      position: absolute;
+      left: -20px;
+      right: -20px;
+      top: 8px;
+      bottom: 0;
+      font-size: 66px;
+      line-height: 1.25;
+      letter-spacing: 12px;
+      color: rgba(255, 236, 174, 0.1);
+      transform: rotate(-8deg);
+      pointer-events: none;
+      user-select: none;
+    }
+    .case::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(900px 260px at 20% -10%, rgba(255,255,255,0.22), transparent 55%);
+      pointer-events: none;
+    }
+    .case h2 {
+      position: relative;
+      margin: 0 0 12px;
+      font-size: 20px;
+      color: #ffe8a5;
+      text-shadow: 0 1px 0 rgba(70, 0, 0, 0.25);
+    }
+    .case .form-row,
+    .case label,
+    .case input {
+      position: relative;
+      z-index: 1;
+    }
+    .case label {
+      color: #ffe8bb;
+    }
+    .case input {
+      border-color: #f1b6bc;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 860px) {
+      body { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+      .title { font-size: 24px; }
+      .case-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card case">
+      <h2>婚礼信息</h2>
+      <div class="case-grid">
+        <div class="form-row">
+          <label for="groomInput">新郎</label>
+          <input id="groomInput" placeholder="请输入新郎姓名" />
+        </div>
+        <div class="form-row">
+          <label for="brideInput">新娘</label>
+          <input id="brideInput" placeholder="请输入新娘姓名" />
+        </div>
+        <div class="form-row">
+          <label for="locationInput">地点</label>
+          <input id="locationInput" placeholder="例如：杭州西湖宴会中心" />
+        </div>
+        <div class="form-row">
+          <label for="timeInput">时间</label>
+          <input id="timeInput" type="datetime-local" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card hero">
+      <div>
+        <h1 class="title">婚礼礼金记录软件</h1>
+        <p class="sub">记录姓名与金额，按金额自动动态排行，支持实时显示与 Excel / Markdown 生成</p>
+      </div>
+      <div class="actions">
+        <button id="exportImageBtn" class="btn-gold">生成永久定格图片</button>
+        <button id="exportExcelBtn" class="btn-light">导出 Excel</button>
+        <button id="exportMdBtn" class="btn-light">导出 Markdown</button>
+        <button id="clearBtn" class="btn-danger">清空数据</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card panel">
+        <h2>录入/修改礼金</h2>
+        <div class="form-row">
+          <label for="nameInput">姓名</label>
+          <input id="nameInput" placeholder="请输入姓名" />
+        </div>
+        <div class="form-row">
+          <label for="amountInput">金额（元）</label>
+          <input id="amountInput" type="number" step="0.01" min="0" placeholder="请输入金额，例如 666" />
+        </div>
+        <div class="actions">
+          <button id="saveBtn" class="btn-primary">保存记录</button>
+        </div>
+        <p class="hint">说明：姓名不可重名；如重名会提示重新输入。数据自动保存在本机浏览器。</p>
+        <div class="status" id="bgStatus">后台文件状态：未生成</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">总人数</div>
+            <div class="v" id="countStat">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">总金额</div>
+            <div class="v" id="sumStat">¥0.00</div>
+          </div>
+          <div class="stat">
+            <div class="k">平均金额</div>
+            <div class="v" id="avgStat">¥0.00</div>
+          </div>
+          <div class="stat">
+            <div class="k">最高金额</div>
+            <div class="v" id="maxStat">¥0.00</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card panel">
+        <h2>礼金排行榜（按金额降序）</h2>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 70px;">排名</th>
+              <th>姓名</th>
+              <th style="width: 160px;">金额（元）</th>
+              <th style="width: 130px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="card credit">
+      <div class="author">软件作者：王泽辉</div>
+      <div>
+        软件 GitHub：
+        <a href="https://github.com/WZH70246/MarryMe" target="_blank" rel="noopener noreferrer">https://github.com/WZH70246/MarryMe</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "marry_gift_records_v4_1";
+    const META_KEY = "marry_gift_meta_v4_1";
+    const BG_MD_KEY = "marry_gift_bg_md_v4_1";
+    const BG_XLS_KEY = "marry_gift_bg_xls_v4_1";
+    const BG_TS_KEY = "marry_gift_bg_ts_v4_1";
+    const BG_MD_NAME_KEY = "marry_gift_bg_md_name_v4_1";
+    const BG_XLS_NAME_KEY = "marry_gift_bg_xls_name_v4_1";
+    const BG_MD_SIZE_KEY = "marry_gift_bg_md_size_v4_1";
+    const BG_XLS_SIZE_KEY = "marry_gift_bg_xls_size_v4_1";
+    const nameInput = document.getElementById("nameInput");
+    const amountInput = document.getElementById("amountInput");
+    const groomInput = document.getElementById("groomInput");
+    const brideInput = document.getElementById("brideInput");
+    const locationInput = document.getElementById("locationInput");
+    const timeInput = document.getElementById("timeInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const exportImageBtn = document.getElementById("exportImageBtn");
+    const exportExcelBtn = document.getElementById("exportExcelBtn");
+    const exportMdBtn = document.getElementById("exportMdBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const tbody = document.getElementById("tbody");
+    const bgStatus = document.getElementById("bgStatus");
+
+    const countStat = document.getElementById("countStat");
+    const sumStat = document.getElementById("sumStat");
+    const avgStat = document.getElementById("avgStat");
+    const maxStat = document.getElementById("maxStat");
+
+    let records = loadRecords();
+    let editingOriginalName = "";
+    let bgFiles = {
+      mdBlob: null,
+      xlsBlob: null,
+      mdUrl: "",
+      xlsUrl: "",
+      mdName: "婚礼礼金排行榜.md",
+      xlsName: "婚礼礼金排行榜.xls"
+    };
+
+    function formatMoney(v) {
+      return "¥" + Number(v).toFixed(2);
+    }
+
+    function sortRecords() {
+      return [...records].sort((a, b) => {
+        if (b.amount !== a.amount) return b.amount - a.amount;
+        return a.updatedAt - b.updatedAt;
+      });
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function loadRecords() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .filter(item => item && typeof item.name === "string" && !Number.isNaN(Number(item.amount)))
+          .map(item => ({
+            name: item.name.trim(),
+            amount: Number(item.amount),
+            updatedAt: Number(item.updatedAt) || Date.now()
+          }))
+          .filter(item => item.name.length > 0 && item.amount >= 0);
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function defaultDateTimeLocalValue() {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function loadMeta() {
+      let meta = { groom: "", bride: "", location: "", time: defaultDateTimeLocalValue() };
+      try {
+        const raw = localStorage.getItem(META_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          meta.groom = typeof parsed.groom === "string" ? parsed.groom : "";
+          meta.bride = typeof parsed.bride === "string" ? parsed.bride : "";
+          meta.location = typeof parsed.location === "string" ? parsed.location : "";
+          meta.time = typeof parsed.time === "string" && parsed.time ? parsed.time : meta.time;
+        }
+      } catch (_) {}
+      groomInput.value = meta.groom;
+      brideInput.value = meta.bride;
+      locationInput.value = meta.location;
+      timeInput.value = meta.time;
+    }
+
+    function saveMeta() {
+      const meta = {
+        groom: groomInput.value.trim(),
+        bride: brideInput.value.trim(),
+        location: locationInput.value.trim(),
+        time: timeInput.value
+      };
+      localStorage.setItem(META_KEY, JSON.stringify(meta));
+    }
+
+    function updateStats(sorted) {
+      const count = sorted.length;
+      const sum = sorted.reduce((acc, x) => acc + x.amount, 0);
+      const avg = count ? sum / count : 0;
+      const max = count ? sorted[0].amount : 0;
+
+      countStat.textContent = String(count);
+      sumStat.textContent = formatMoney(sum);
+      avgStat.textContent = formatMoney(avg);
+      maxStat.textContent = formatMoney(max);
+    }
+
+    function render() {
+      const sorted = sortRecords();
+      updateStats(sorted);
+      tbody.innerHTML = "";
+
+      sorted.forEach((row, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="rank">${idx + 1}</td>
+          <td>${escapeHtml(row.name)}</td>
+          <td class="money">${formatMoney(row.amount)}</td>
+          <td>
+            <div class="op">
+              <button class="btn-light" data-edit="${encodeURIComponent(row.name)}">编辑</button>
+              <button class="btn-danger" data-del="${encodeURIComponent(row.name)}">删除</button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      generateBackgroundFiles(sorted);
+      updateBackgroundStatus();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, ch => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[ch]));
+    }
+
+    function upsertRecord() {
+      const name = nameInput.value.trim();
+      const amount = Number(amountInput.value);
+
+      if (!name) {
+        alert("请输入姓名");
+        nameInput.focus();
+        return;
+      }
+      if (Number.isNaN(amount) || amount < 0) {
+        alert("请输入合法金额（>= 0）");
+        amountInput.focus();
+        return;
+      }
+
+      if (!editingOriginalName) {
+        const duplicate = records.some(item => item.name === name);
+        if (duplicate) {
+          alert("检测到重名，请输入新的姓名。");
+          nameInput.focus();
+          nameInput.select();
+          return;
+        }
+        records.push({ name, amount, updatedAt: Date.now() });
+      } else {
+        const duplicate = records.some(item => item.name === name && item.name !== editingOriginalName);
+        if (duplicate) {
+          alert("修改后姓名与现有记录重名，请重新输入。");
+          nameInput.focus();
+          nameInput.select();
+          return;
+        }
+        const found = records.find(item => item.name === editingOriginalName);
+        if (!found) {
+          alert("未找到要编辑的记录，请重新操作。");
+          editingOriginalName = "";
+          return;
+        }
+        found.name = name;
+        found.amount = amount;
+        found.updatedAt = Date.now();
+      }
+
+      saveRecords();
+      render();
+      amountInput.value = "";
+      editingOriginalName = "";
+      nameInput.focus();
+      nameInput.select();
+    }
+
+    function removeRecord(name) {
+      records = records.filter(item => item.name !== name);
+      saveRecords();
+      render();
+    }
+
+    function generateMarkdown(sorted) {
+      const groom = groomInput.value.trim() || "未填写";
+      const bride = brideInput.value.trim() || "未填写";
+      const place = locationInput.value.trim() || "未填写";
+      const when = formatMetaTime(timeInput.value);
+      const lines = [
+        "# 婚礼礼金排行榜",
+        "",
+        `- 新郎：${groom}`,
+        `- 新娘：${bride}`,
+        `- 时间：${when}`,
+        `- 地点：${place}`,
+        "",
+        "| 排名 | 姓名 | 金额（元） |",
+        "| --- | --- | ---: |"
+      ];
+
+      sorted.forEach((x, i) => {
+        lines.push(`| ${i + 1} | ${x.name.replace(/\|/g, "\\|")} | ${x.amount.toFixed(2)} |`);
+      });
+
+      lines.push("");
+      lines.push(`总人数：${sorted.length}`);
+      lines.push(`总金额：${sorted.reduce((s, x) => s + x.amount, 0).toFixed(2)} 元`);
+      return lines.join("\n");
+    }
+
+    function downloadText(filename, text, mime = "text/plain;charset=utf-8") {
+      const blob = new Blob([text], { type: mime });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function formatFileStamp(d) {
+      const p = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+    }
+
+    function formatSize(bytes) {
+      const kb = bytes / 1024;
+      if (kb < 1024) return `${kb.toFixed(1)} KB`;
+      return `${(kb / 1024).toFixed(2)} MB`;
+    }
+
+    function xmlEscape(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+
+    function buildExcelXml(sorted, stamp) {
+      const sum = sorted.reduce((acc, x) => acc + x.amount, 0);
+
+      let rows = `
+        <Row>
+          <Cell><Data ss:Type="String">排名</Data></Cell>
+          <Cell><Data ss:Type="String">姓名</Data></Cell>
+          <Cell><Data ss:Type="String">金额（元）</Data></Cell>
+        </Row>
+      `;
+
+      sorted.forEach((x, i) => {
+        rows += `
+          <Row>
+            <Cell><Data ss:Type="Number">${i + 1}</Data></Cell>
+            <Cell><Data ss:Type="String">${xmlEscape(x.name)}</Data></Cell>
+            <Cell><Data ss:Type="Number">${x.amount.toFixed(2)}</Data></Cell>
+          </Row>
+        `;
+      });
+
+      rows += `
+        <Row><Cell><Data ss:Type="String"></Data></Cell></Row>
+        <Row>
+          <Cell><Data ss:Type="String">总人数</Data></Cell>
+          <Cell><Data ss:Type="Number">${sorted.length}</Data></Cell>
+        </Row>
+        <Row>
+          <Cell><Data ss:Type="String">总金额</Data></Cell>
+          <Cell><Data ss:Type="Number">${sum.toFixed(2)}</Data></Cell>
+        </Row>
+        <Row>
+          <Cell><Data ss:Type="String">导出时间</Data></Cell>
+          <Cell><Data ss:Type="String">${xmlEscape(stamp)}</Data></Cell>
+        </Row>
+      `;
+
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="礼金排行榜">
+  <Table>${rows}</Table>
+ </Worksheet>
+</Workbook>`;
+    }
+
+    function exportExcelXml() {
+      if (bgFiles.xlsBlob) {
+        const a = document.createElement("a");
+        a.href = bgFiles.xlsUrl;
+        a.download = bgFiles.xlsName;
+        a.click();
+        return;
+      }
+
+      let xml = localStorage.getItem(BG_XLS_KEY);
+      if (!xml) {
+        const sorted = sortRecords();
+        const stamp = new Date().toLocaleString("zh-CN");
+        xml = buildExcelXml(sorted, stamp);
+      }
+      downloadText(localStorage.getItem(BG_XLS_NAME_KEY) || "婚礼礼金排行榜.xls", xml, "application/vnd.ms-excel;charset=utf-8");
+    }
+
+    function formatMetaTime(value) {
+      if (!value) return new Date().toLocaleString("zh-CN");
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString("zh-CN");
+    }
+
+    function drawText(ctx, text, x, y, opts = {}) {
+      ctx.save();
+      ctx.font = opts.font || "28px 'Microsoft YaHei'";
+      ctx.fillStyle = opts.color || "#fff";
+      ctx.textAlign = opts.align || "left";
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+      const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    function drawWatermark(ctx, width, height, text) {
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate(-Math.PI / 6);
+      ctx.font = "bold 34px 'Microsoft YaHei'";
+      ctx.fillStyle = "rgba(255,255,255,0.12)";
+      ctx.textAlign = "center";
+      const stepX = 480;
+      const stepY = 170;
+      for (let y = -height; y <= height; y += stepY) {
+        for (let x = -width; x <= width; x += stepX) {
+          ctx.fillText(text, x, y);
+        }
+      }
+      ctx.restore();
+    }
+
+    function exportPosterImage() {
+      const sorted = sortRecords();
+      const groom = groomInput.value.trim();
+      const bride = brideInput.value.trim();
+      const location = locationInput.value.trim();
+      const timeText = formatMetaTime(timeInput.value);
+
+      if (!groom || !bride || !location || !timeInput.value) {
+        alert("请先在顶部 Case1 区域完整填写新郎、新娘、地点和时间。");
+        return;
+      }
+
+      const rowCount = Math.max(sorted.length, 1);
+      const width = 1400;
+      const height = 420 + rowCount * 52 + 120;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        alert("当前浏览器不支持图片导出。");
+        return;
+      }
+
+      const g = ctx.createLinearGradient(0, 0, width, height);
+      g.addColorStop(0, "#b30d1d");
+      g.addColorStop(0.55, "#d21f2f");
+      g.addColorStop(1, "#ff616f");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < 6; i += 1) {
+        const x = 120 + i * 240;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(255, 220, 120, 0.18)";
+        ctx.arc(x, 86, 54, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      drawText(ctx, "婚礼礼金榜", 70, 90, { font: "bold 58px 'Microsoft YaHei'", color: "#ffe9a9" });
+      drawText(ctx, `新郎：${groom}    新娘：${bride}`, 72, 140, { font: "32px 'Microsoft YaHei'" });
+      drawText(ctx, `时间：${timeText}`, 72, 182, { font: "28px 'Microsoft YaHei'" });
+      drawText(ctx, `地点：${location}`, 72, 220, { font: "28px 'Microsoft YaHei'" });
+      drawWatermark(ctx, width, height, `${groom}&${bride}  ${location}  ${timeText}`);
+
+      const panelX = 55;
+      const panelY = 260;
+      const panelW = width - 110;
+      const panelH = height - panelY - 50;
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.strokeStyle = "rgba(255, 242, 200, 0.85)";
+      ctx.lineWidth = 2;
+      drawRoundedRect(ctx, panelX, panelY, panelW, panelH, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#7c0c14";
+      ctx.font = "bold 28px 'Microsoft YaHei'";
+      ctx.fillText("排名", panelX + 35, panelY + 48);
+      ctx.fillText("姓名", panelX + 220, panelY + 48);
+      ctx.fillText("金额（元）", panelX + panelW - 310, panelY + 48);
+
+      ctx.strokeStyle = "#f2d9cf";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(panelX + 20, panelY + 66);
+      ctx.lineTo(panelX + panelW - 20, panelY + 66);
+      ctx.stroke();
+
+      const list = sorted.length ? sorted : [{ name: "暂无记录", amount: 0 }];
+      list.forEach((item, idx) => {
+        const y = panelY + 110 + idx * 52;
+        ctx.fillStyle = idx % 2 === 0 ? "#fff6f6" : "#fff";
+        ctx.fillRect(panelX + 20, y - 32, panelW - 40, 42);
+
+        ctx.fillStyle = "#8d1e2a";
+        ctx.font = "24px 'Microsoft YaHei'";
+        ctx.fillText(String(idx + 1), panelX + 45, y);
+        ctx.fillText(item.name, panelX + 220, y);
+        ctx.fillStyle = "#0f9d58";
+        ctx.fillText(Number(item.amount).toFixed(2), panelX + panelW - 290, y);
+      });
+
+      const sum = sorted.reduce((s, x) => s + x.amount, 0).toFixed(2);
+      drawText(ctx, `总人数：${sorted.length}    总金额：${sum} 元`, panelX + 30, panelY + panelH - 18, {
+        font: "24px 'Microsoft YaHei'",
+        color: "#9f2b36"
+      });
+
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = "婚礼礼金永久图片.png";
+      a.click();
+    }
+
+    function generateBackgroundFiles(sorted) {
+      const now = new Date();
+      const stamp = now.toLocaleString("zh-CN");
+      const stampName = formatFileStamp(now);
+      const md = generateMarkdown(sorted);
+      const xml = buildExcelXml(sorted, stamp);
+      const mdBlob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+      const xlsBlob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+
+      if (bgFiles.mdUrl) URL.revokeObjectURL(bgFiles.mdUrl);
+      if (bgFiles.xlsUrl) URL.revokeObjectURL(bgFiles.xlsUrl);
+
+      bgFiles.mdUrl = URL.createObjectURL(mdBlob);
+      bgFiles.xlsUrl = URL.createObjectURL(xlsBlob);
+      bgFiles.mdBlob = mdBlob;
+      bgFiles.xlsBlob = xlsBlob;
+      bgFiles.mdName = `婚礼礼金排行榜_${stampName}.md`;
+      bgFiles.xlsName = `婚礼礼金排行榜_${stampName}.xls`;
+
+      localStorage.setItem(BG_MD_KEY, md);
+      localStorage.setItem(BG_XLS_KEY, xml);
+      localStorage.setItem(BG_TS_KEY, stamp);
+      localStorage.setItem(BG_MD_NAME_KEY, bgFiles.mdName);
+      localStorage.setItem(BG_XLS_NAME_KEY, bgFiles.xlsName);
+      localStorage.setItem(BG_MD_SIZE_KEY, String(mdBlob.size));
+      localStorage.setItem(BG_XLS_SIZE_KEY, String(xlsBlob.size));
+    }
+
+    function updateBackgroundStatus() {
+      const ts = localStorage.getItem(BG_TS_KEY);
+      if (!ts) {
+        bgStatus.textContent = "后台文件状态：未生成";
+        return;
+      }
+      const mdName = localStorage.getItem(BG_MD_NAME_KEY) || "婚礼礼金排行榜.md";
+      const xlsName = localStorage.getItem(BG_XLS_NAME_KEY) || "婚礼礼金排行榜.xls";
+      const mdSize = Number(localStorage.getItem(BG_MD_SIZE_KEY) || 0);
+      const xlsSize = Number(localStorage.getItem(BG_XLS_SIZE_KEY) || 0);
+      bgStatus.textContent = `后台文件状态：已实时生成（${ts}）| ${mdName} ${formatSize(mdSize)} | ${xlsName} ${formatSize(xlsSize)}`;
+    }
+
+    saveBtn.addEventListener("click", upsertRecord);
+
+    amountInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") upsertRecord();
+    });
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") amountInput.focus();
+    });
+
+    tbody.addEventListener("click", (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      if (target.dataset.edit) {
+        const name = decodeURIComponent(target.dataset.edit);
+        const row = records.find(item => item.name === name);
+        if (!row) return;
+        editingOriginalName = row.name;
+        nameInput.value = row.name;
+        amountInput.value = String(row.amount);
+        nameInput.focus();
+      }
+
+      if (target.dataset.del) {
+        const name = decodeURIComponent(target.dataset.del);
+        if (!confirm(`确认删除 ${name} 的礼金记录吗？`)) return;
+        removeRecord(name);
+      }
+    });
+
+    exportMdBtn.addEventListener("click", () => {
+      if (bgFiles.mdBlob) {
+        const a = document.createElement("a");
+        a.href = bgFiles.mdUrl;
+        a.download = bgFiles.mdName;
+        a.click();
+        return;
+      }
+      const md = localStorage.getItem(BG_MD_KEY) || generateMarkdown(sortRecords());
+      downloadText(localStorage.getItem(BG_MD_NAME_KEY) || "婚礼礼金排行榜.md", md, "text/markdown;charset=utf-8");
+    });
+
+    exportImageBtn.addEventListener("click", exportPosterImage);
+    exportExcelBtn.addEventListener("click", exportExcelXml);
+    groomInput.addEventListener("change", saveMeta);
+    brideInput.addEventListener("change", saveMeta);
+    locationInput.addEventListener("change", saveMeta);
+    timeInput.addEventListener("change", saveMeta);
+    groomInput.addEventListener("input", saveMeta);
+    brideInput.addEventListener("input", saveMeta);
+    locationInput.addEventListener("input", saveMeta);
+    timeInput.addEventListener("input", saveMeta);
+    groomInput.addEventListener("input", render);
+    brideInput.addEventListener("input", render);
+    locationInput.addEventListener("input", render);
+    timeInput.addEventListener("input", render);
+
+    clearBtn.addEventListener("click", () => {
+      if (!records.length) return;
+      if (!confirm("确认清空所有礼金记录？该操作不可撤销。")) return;
+      records = [];
+      editingOriginalName = "";
+      saveRecords();
+      render();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (bgFiles.mdUrl) URL.revokeObjectURL(bgFiles.mdUrl);
+      if (bgFiles.xlsUrl) URL.revokeObjectURL(bgFiles.xlsUrl);
+    });
+
+    loadMeta();
+    render();
+  </script>
+</body>
+</html>
